@@ -1,0 +1,33 @@
+name: todo
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'js/**'
+      - '.github/**'
+
+defaults:
+  run:
+    working-directory: js
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - run: yarn add --dev jest
+      - run: yarn add --dev babel-jest @babel/core @babel/preset-env
+      - run: npm run test
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: coverage
+          path: coverage/**
+          retention-days: 7
