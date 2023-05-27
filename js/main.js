@@ -11,6 +11,17 @@ function createLiElement(todo) {
 
   const currentStatus = liElement.dataset.status;
 
+  // ! REMOVE BUTTON
+  const removebtn = liElement.querySelector('.remove');
+  if (!removebtn) return;
+
+  removebtn.addEventListener('click', () => {
+    const todoList = getTodoList();
+    const newTodoList = todoList.filter((x) => x.id !== todo.id);
+    localStorage.setItem('todo_list', JSON.stringify(newTodoList));
+    liElement.remove();
+  });
+
   // ! FINISH / COMPLETED BUTTON
   const markAsDoneBtn = liElement.querySelector('.mark-as-done');
   if (!markAsDoneBtn) return;
