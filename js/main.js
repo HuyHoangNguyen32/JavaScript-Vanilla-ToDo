@@ -28,16 +28,16 @@ function createLiElement(todo) {
 
   // Div Todo Background Color
   const divElement = liElement.querySelector('.todo');
-  const divElementColor = currentStatus === 'pending' ? 'alert-success' : 'alert-secondary';
+  const divElementColor = currentStatus === 'pending' ? 'alert-secondary' : 'alert-success';
   divElement.classList.remove('alert-success', 'alert-secondary');
   divElement.classList.add(divElementColor);
 
   // Mark as Done Button Text
-  const markAsDoneBtnText = currentStatus === 'pending' ? 'Reset' : 'Finish';
+  const markAsDoneBtnText = currentStatus === 'pending' ? 'Finish' : 'Reset';
   markAsDoneBtn.textContent = markAsDoneBtnText;
 
   // Mark as Done Button Color
-  const markAsDoneBtnColor = currentStatus === 'pending' ? 'btn-success' : 'btn-dark';
+  const markAsDoneBtnColor = currentStatus === 'pending' ? 'btn-dark' : 'btn-success';
   markAsDoneBtn.classList.add(markAsDoneBtnColor);
 
   markAsDoneBtn.addEventListener('click', () => {
@@ -85,9 +85,47 @@ function getTodoList() {
   }
 }
 
+function handleTodoFormSubmit(event) {
+  event.preventDefault();
+
+  const todoForm = document.getElementById('todoFormId');
+  const todoInput = todoForm.querySelector('#todoText');
+  if (!todoInput) return;
+
+  // create new todo
+  const newTodo = {
+    id: Date.now(),
+    title: todoInput.value,
+    status: 'pending',
+  };
+  // add new todo to todoList on local storage
+  const todoList = getTodoList();
+  todoList.push(newTodo);
+  localStorage.setItem('todo_list', JSON.stringify(todoList));
+  // update todo elements on browser
+  const newLiElement = createLiElement(newTodo);
+  const ulElement = document.getElementById('todoList');
+  ulElement.append(newLiElement);
+
+  todoInput.value = '';
+}
+
 (() => {
+  //   const initTodoList = [
+  //     { id: 1, title: "JavaScript", status: "pending" },
+  //     { id: 2, title: "TypeScript", status: "completed" },
+  //     { id: 3, title: "ReactJS", status: "pending" },
+  //     { id: 4, title: "NextJS", status: "completed" },
+  //   ];
+  // localStorage.setItem('todo_list', JSON.stringify(initTodoList));
+
   const todoList = getTodoList();
   if (!todoList) return;
 
   renderElements(todoList);
+
+  const todoForm = document.getElementById('todoFormId');
+  if (todoForm) {
+    todoForm.addEventListener('submit', handleTodoFormSubmit);
+  }
 })();

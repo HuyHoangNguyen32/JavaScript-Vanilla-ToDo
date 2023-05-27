@@ -29,7 +29,7 @@
 🎖️ `git commit -m "message"` -> use vs code extensions  
 🎖️ Pull requests -> use vs code extensions  
 🎖️ `git pull`  
-🎖️ Delete branch  
+🎖️ Delete branch : `git branch -d feature/remove-todo`  
 🎖️ Checkout main branch
 
 ## 🪬GitHub Actions
