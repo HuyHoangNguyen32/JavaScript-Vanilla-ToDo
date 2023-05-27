@@ -61,7 +61,7 @@ jobs:
 
       - run: yarn add --dev jest
       - run: yarn add --dev babel-jest @babel/core @babel/preset-env
-      - run: npm run test
+      - run: yarn test
 
       - uses: actions/upload-artifact@v3
         if: always()
