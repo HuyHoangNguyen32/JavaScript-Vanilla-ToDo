@@ -3,7 +3,7 @@
                       ! RENDER TODO FEATURE
 ################################################################ 
 */
-function createLiElement(todo) {
+function createLiElement(todo, params) {
   if (!todo) return;
 
   const template = document.getElementById('todoTemplate');
@@ -45,6 +45,9 @@ function createLiElement(todo) {
   const markAsDoneBtnColor = currentStatus === 'pending' ? 'btn-dark' : 'btn-success';
   markAsDoneBtn.classList.add(markAsDoneBtnColor);
 
+  // check if we should show it or not
+  liElement.hidden = !isMatch(liElement, params);
+
   markAsDoneBtn.addEventListener('click', () => {
     // ! why
     const currentStatus = liElement.dataset.status;
@@ -72,12 +75,12 @@ function createLiElement(todo) {
   return liElement;
 }
 
-function renderElements(todoList) {
+function renderElements(todoList, params) {
   const ulElement = document.getElementById('todoList');
   if (!ulElement) return;
 
   for (todo of todoList) {
-    const liElement = createLiElement(todo);
+    const liElement = createLiElement(todo, params);
     ulElement.append(liElement);
   }
 }
@@ -122,15 +125,15 @@ function handleTodoFormSubmit(event) {
 
 // * Lấy ra giá trị title của từng todo
 // * So sánh với keyword và trả về true or false
-function isMatch(liElement, searchTerm) {
-  if (!liElement) return false;
-  if (searchTerm === '') return true;
+// function isMatch(liElement, searchTerm) {
+//   if (!liElement) return false;
+//   if (searchTerm === '') return true;
 
-  const titleElement = liElement.querySelector('p.todo__title');
-  if (!titleElement) return false;
+//   const titleElement = liElement.querySelector('p.todo__title');
+//   if (!titleElement) return false;
 
-  return titleElement.textContent.toLowerCase().includes(searchTerm.toLowerCase());
-}
+//   return titleElement.textContent.toLowerCase().includes(searchTerm.toLowerCase());
+// }
 
 // * Lấy toàn bộ các thẻ li todo có trên trình duyệt
 function getAllTodoElement() {
@@ -140,27 +143,27 @@ function getAllTodoElement() {
 // * Duyệt qua từng li todo
 // * Truyền li và keyword cho hàm isMatch
 // * Ẩn hiện todo tương ứng với keyword
-function searchTodo(searchTerm) {
-  const todoElementList = getAllTodoElement();
+// function searchTodo(searchTerm) {
+//   const todoElementList = getAllTodoElement();
 
-  for (const todoElement of todoElementList) {
-    const needToShow = isMatch(todoElement, searchTerm);
-    todoElement.hidden = !needToShow;
-  }
-  // searchTerm === empty --> show all
-  // searchTerm !== empty --> filter todo
-}
+//   for (const todoElement of todoElementList) {
+//     const needToShow = isMatch(todoElement, searchTerm);
+//     todoElement.hidden = !needToShow;
+//   }
+//   // searchTerm === empty --> show all
+//   // searchTerm !== empty --> filter todo
+// }
 
 // * Lấy giá trị trong ô input truyền cho hàm searchTodo
-function initSearchInput() {
-  // find search term input
-  const searchInput = document.getElementById('searchTerm');
-  if (!searchInput) return;
+// function initSearchInput() {
+//   // find search term input
+//   const searchInput = document.getElementById('searchTerm');
+//   if (!searchInput) return;
 
-  searchInput.addEventListener('input', (e) => {
-    searchTodo(searchInput.value);
-  });
-}
+//   searchInput.addEventListener('input', (e) => {
+//     searchTodo(searchInput.value);
+//   });
+// }
 
 /* 
 ################################################################ 
@@ -168,39 +171,119 @@ function initSearchInput() {
 ################################################################ 
 */
 // so sánh giá trị status người dùng nhập và giá trị status mặc định
-function isMatch(status, liElement) {
-  if (!liElement) return false;
-  if (status === 'all') return true;
+// function isMatch(status, liElement) {
+//   if (!liElement) return false;
+//   if (status === 'all') return true;
 
-  const currentLiElementStatus = liElement.dataset.status;
-  return currentLiElementStatus === status;
-}
+//   const currentLiElementStatus = liElement.dataset.status;
+//   return currentLiElementStatus === status;
+// }
 
 // * Lấy toàn bộ các thẻ li todo có trên trình duyệt
-function getAllTodoElement() {
-  return document.querySelectorAll('#todoList > li');
-}
+// function getAllTodoElement() {
+//   return document.querySelectorAll('#todoList > li');
+// }
 
 // * Lây vào giá trị status và các thẻ li todo hiện có
 // * Duyệt qua từng thẻ li -> truyền status và li todo cho hàm isMatch
 // * Tuỳ vào giá trị isMatch trả về mà ẩn hiện element
-function filterTodo(status) {
-  if (!status) return;
+// function filterTodo(status) {
+//   if (!status) return;
 
+//   const liElementList = getAllTodoElement();
+//   for (const liElement of liElementList) {
+//     const isShow = isMatch(status, liElement);
+//     liElement.hidden = !isShow;
+//   }
+// }
+
+// * Lấy giá trị select mà người dùng đã thay đổi -> truyền nó cho hàm filterTodo
+// function initFilterInput() {
+//   const filterInput = document.getElementById('filterStatus');
+//   if (!filterInput) return;
+
+//   filterInput.addEventListener('change', () => {
+//     filterTodo(filterInput.value);
+//   });
+// }
+
+/* 
+################################################################ 
+                      ! PERSIST FILTERS
+################################################################ 
+*/
+// On filter change
+// Update query params using history.pushState
+// Retrieve the latest query params
+// Loop through li element list
+// isMatch -> yes => show it, no => hidden it
+
+// * Nhận giá trị từ input status và search để thay đổi query params
+function handleFilterChange(filterName, filterValue) {
+  const url = new URL(window.location);
+  url.searchParams.set(filterName, filterValue);
+
+  // cập nhật params từ giá trị người dùng nhập
+  history.pushState({}, '', url);
+
+  // ẩn hiện liElement tuỳ vào giá trị isMatch
   const liElementList = getAllTodoElement();
   for (const liElement of liElementList) {
-    const isShow = isMatch(status, liElement);
+    const isShow = isMatch(liElement, url.searchParams);
     liElement.hidden = !isShow;
   }
 }
 
-// * Lấy giá trị select mà người dùng đã thay đổi -> truyền nó cho hàm filterTodo
-function initFilterInput() {
+// * Kiểm tra có thoả cả 2 điều kiện status và search
+function isMatch(liElement, params) {
+  return (
+    isMatchSearch(liElement, params.get('searchTerm')) &&
+    isMatchStatus(liElement, params.get('status'))
+  );
+}
+
+// * Kiểm tra có thoả điều kiện status
+function isMatchStatus(liElement, filterStatus) {
+  return filterStatus === 'all' || liElement.dataset.status === filterStatus;
+}
+
+// * Kiểm tra có thoả điều kiện search
+function isMatchSearch(liElement, searchTerm) {
+  if (!liElement) return false;
+  if (searchTerm === '') return true;
+
+  const titleElement = liElement.querySelector('p.todo__title');
+  if (!titleElement) return false;
+
+  return titleElement.textContent.toLowerCase().includes(searchTerm.toLowerCase());
+}
+
+// * Nhận giá trị input status truyền cho hàm handleFilterChange
+function initFilterInput(params) {
   const filterInput = document.getElementById('filterStatus');
   if (!filterInput) return;
 
+  if (params.get('status')) {
+    filterInput.value = params.get('status');
+  }
+
   filterInput.addEventListener('change', () => {
-    filterTodo(filterInput.value);
+    handleFilterChange('status', filterInput.value);
+  });
+}
+
+// * Nhận giá trị input search truyền cho hàm handleFilterChange
+function initSearchInput(params) {
+  // find search term input
+  const searchInput = document.getElementById('searchTerm');
+  if (!searchInput) return;
+
+  if (params.get('searchTerm')) {
+    searchInput.value = params.get('searchTerm');
+  }
+
+  searchInput.addEventListener('input', () => {
+    handleFilterChange('searchTerm', searchInput.value);
   });
 }
 
@@ -229,13 +312,15 @@ function getTodoList() {
   const todoList = getTodoList();
   if (!todoList) return;
 
-  renderElements(todoList);
-
   const todoForm = document.getElementById('todoFormId');
   if (todoForm) {
     todoForm.addEventListener('submit', handleTodoFormSubmit);
   }
 
-  initSearchInput();
-  initFilterInput();
+  // get query params object
+  const params = new URLSearchParams(window.location.search);
+  renderElements(todoList, params);
+
+  initSearchInput(params);
+  initFilterInput(params);
 })();
