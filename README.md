@@ -81,3 +81,15 @@ jobs:
 ✅ Search todo with keywords  
 ✅ Filter todo with status  
 ✅ When reload browser, data of todo not change (use param)  
+
+## 🍺 How to use in Vercel
+🍻 Add data in to local storage
+```javascript
+    const initTodoList = [
+      { id: 1, title: "JavaScript", status: "pending" },
+      { id: 2, title: "TypeScript", status: "completed" },
+      { id: 3, title: "ReactJS", status: "pending" },
+      { id: 4, title: "NextJS", status: "completed" },
+    ];
+  localStorage.setItem('todo_list', JSON.stringify(initTodoList));
+```
