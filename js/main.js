@@ -11,7 +11,7 @@ function createLiElement(todo, params) {
 
   const liElement = template.content.firstElementChild.cloneNode(true);
   liElement.querySelector('.todo__title').textContent = todo.title;
-  // liElement.dataset.id = todo.id;
+  liElement.dataset.id = todo.id;
   liElement.dataset.status = todo.status;
 
   const currentStatus = liElement.dataset.status;
@@ -72,7 +72,50 @@ function createLiElement(todo, params) {
     localStorage.setItem('todo_list', JSON.stringify(todoList));
   });
 
+  // ! EDIT BUTTON
+  // add click event for edit button
+  const editButton = liElement.querySelector('button.edit');
+  if (editButton) {
+    editButton.addEventListener('click', () => {
+      // need to get todo from local storage
+      // as todo data can be outdated
+      const todoList = getTodoList();
+      const latestTodo = todoList.find((x) => x.id === todo.id);
+      if (!latestTodo) return;
+      // populate data to todo form
+      populateTodoForm(latestTodo);
+    });
+  }
+
   return liElement;
+}
+/* 
+################################################################ 
+                      ! EDIT FEATURE
+################################################################ 
+*/
+// Click Edit on todo item
+// Populate selected todo data to form
+// Change todo text
+// Submit
+// Save data to local storage
+// Update li element accordingly
+// Reset todo form
+
+function populateTodoForm(todo) {
+  // query todo form
+  // dataset.id = todo.id
+  const todoForm = document.getElementById('todoFormId');
+  if (!todoForm) return;
+
+  todoForm.dataset.id = todo.id;
+
+  // set values for form controls
+  // set todoText input
+  const todoInput = document.getElementById('todoText');
+  if (!todoInput) return;
+
+  todoInput.value = todo.title;
 }
 
 function renderElements(todoList, params) {
@@ -87,34 +130,62 @@ function renderElements(todoList, params) {
 
 /* 
 ################################################################ 
-                      ! ADD TODO FEATURE
+                      ! ADD & EDIT TODO FEATURE
 ################################################################ 
 */
 function handleTodoFormSubmit(event) {
   event.preventDefault();
 
   const todoForm = document.getElementById('todoFormId');
+  if (!todoForm) return;
+
   const todoInput = todoForm.querySelector('#todoText');
   if (!todoInput) return;
 
-  // create new todo
-  const newTodo = {
-    id: Date.now(),
-    title: todoInput.value,
-    status: 'pending',
-  };
+  // determine add or edit mode
+  const isEdit = Boolean(todoForm.dataset.id);
 
-  // add new todo to todoList on local storage
-  const todoList = getTodoList();
-  todoList.push(newTodo);
-  localStorage.setItem('todo_list', JSON.stringify(todoList));
+  if (isEdit) {
+    // find current todo
+    const todoList = getTodoList();
+    const index = todoList.findIndex((x) => x.id.toString() === todoForm.dataset.id);
+    if (index < 0) return;
 
-  // update todo elements on browser
-  const newLiElement = createLiElement(newTodo);
-  const ulElement = document.getElementById('todoList');
-  ulElement.append(newLiElement);
+    // update content
+    todoList[index].title = todoInput.value;
 
-  todoInput.value = '';
+    // save
+    localStorage.setItem('todo_list', JSON.stringify(todoList));
+
+    // apply DOM changes
+    const liElement = document.querySelector(`ul#todoList > li[data-id="${todoForm.dataset.id}"]`);
+    if (liElement) {
+      const titleElement = liElement.querySelector('.todo__title');
+      if (titleElement) titleElement.textContent = todoInput.value;
+    }
+  } else {
+    // add mode
+    // create new todo
+    const newTodo = {
+      id: Date.now(),
+      title: todoInput.value,
+      status: 'pending',
+    };
+
+    // add new todo to todoList on local storage
+    const todoList = getTodoList();
+    todoList.push(newTodo);
+    localStorage.setItem('todo_list', JSON.stringify(todoList));
+
+    // update todo elements on browser
+    const newLiElement = createLiElement(newTodo);
+    // const ulElement = document.getElementById('todoList');
+    ulElement.append(newLiElement);
+  }
+
+  // reset form
+  delete todoForm.dataset.id;
+  if (todoForm) todoForm.reset();
 }
 
 /* 
